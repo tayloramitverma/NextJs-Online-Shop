@@ -1,0 +1,9 @@
+.rootcard{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card{
+    max-width: 25%;
+    margin: 3px;
+}
