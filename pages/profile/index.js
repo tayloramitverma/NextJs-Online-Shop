@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { parseCookies } from 'nookies'
+
 const Profile =()=>{
     return (
         <div>
@@ -8,4 +10,17 @@ const Profile =()=>{
     )
 }
 
-export default Profile;
+export default Profile
+
+export async function getServerSideProps(context) {
+    const {token} = parseCookies(context)
+    if(!token){
+        const {res} = context
+        res.writeHead(302,{Location:'/login'})
+        res.end()
+    }
+
+    return{
+        props:{}
+    }
+}
