@@ -16,6 +16,9 @@
     "next": "9.5.2",
     "nookies": "^2.5.2",
     "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react-dom": "16.13.1",
+    "react-stripe-checkout": "^2.6.3",
+    "stripe": "^8.148.0",
+    "uuid": "^8.3.2"
   }
 }

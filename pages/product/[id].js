@@ -84,7 +84,7 @@ export default function Product({product}) {
     return (
         <div className="container center-align">
             <h3>{product.name}</h3>
-            <img src={product.mediaURI} className="pimage"/>
+            <img src={product.mediaURI} className="responsive-img pd-image"/>
             <h5>{product.price}</h5>
             <div className="row">
                 <div className="col s12">

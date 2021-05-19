@@ -4,11 +4,14 @@ import Link from 'next/link'
 import {parseCookies} from 'nookies'
 import cookie from 'js-cookie'
 import baseurl from '../helpers/baseUrls'
+
+import StripeCheckout from 'react-stripe-checkout'
+
 const Cart = ({error,products}) => {
     const [cartProducts, setCartProducts] = useState(products)
     const router = useRouter();
     const {token} = parseCookies()
-
+    let price=0
     if(!token){
         return (
             <div className="center">
@@ -17,6 +20,16 @@ const Cart = ({error,products}) => {
             </div>
         )
     }
+
+    if(cartProducts.length <= 0){
+        return (
+            <div className="center">
+                <h3>Please add products in your cart items!</h3>
+                <Link href={'/'}><a><button className="btn waves-effect waves-light blue">View More Products</button></a></Link>
+            </div>
+        )
+    }
+
     if(error){
         M.toast({html:error, classes:'red'})
         cookie.remove('token')
@@ -33,7 +46,7 @@ const Cart = ({error,products}) => {
             }
         })
         const data = await res.json()
-        console.log(data)
+
         if(data.err){
             M.toast({html:data.err, classes:'red'})
             cookie.remove('token')
@@ -44,8 +57,32 @@ const Cart = ({error,products}) => {
         M.toast({html:"Item removed!",classes:'green'})
     }
 
+    const handleCheckout = async (paymentInfo) =>{
+
+        const res = await fetch(`${baseurl}api/payment`,{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+                'Authorization':`Bearer ${token}`
+            },
+            body:JSON.stringify({
+                paymentInfo
+            })
+        })
+
+        const data = await res.json();
+        if(data.err){
+            M.toast({html:data.err, classes:'red'})
+            cookie.remove('token')
+            cookie.remove('userdata')
+            router.push('/login')
+        }
+        setCartProducts(data.products)
+        M.toast({html:data.message,classes:'green'})
+    }
+
     return (
-        <div className="container">
+        <div className="container center">
             <h1>My Cart</h1>
             <table>
             <thead>
@@ -62,6 +99,7 @@ const Cart = ({error,products}) => {
                 {
                     cartProducts.map((item,index)=>{
                         let indexing = index+1
+                        price += item.quantity * item.product.price
                         return (
                             <tr key={indexing}>
                                 <td>
@@ -88,6 +126,33 @@ const Cart = ({error,products}) => {
                     })
                 }
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colSpan="5">Total Price</td>
+                    <td>₹ {price}</td>
+                </tr>
+                <tr>
+                    <td colSpan="6">
+                        {cartProducts.length> 0 &&
+                            <StripeCheckout
+                                name="Taylor's Store"
+                                image="https://tulifeskillsdevelopment.files.wordpress.com/2018/01/taylors-logo-01.jpg"
+                                amount={price * 100}
+                                currency="INR"
+                                billingAddress={true}
+                                shippingAddress={true}
+                                zipCode={true}
+                                stripeKey="pk_test_51IsNVZSGxGwZcA1fz3KGMSKlQccm43jopW9aGYy3gqGIteWkAFa7pbQQbkqoiJn7tmcaKc5vS0iqnT4vQEIe5yQE00G2u75oh8"
+                                token={(paymentInfo)=>handleCheckout(paymentInfo)}
+                            >
+                                <button 
+                                    className="right btn waves-effect waves-light blue"
+                                >Checkout</button>
+                            </StripeCheckout>
+                        }
+                    </td>
+                </tr>
+            </tfoot>
             </table>
         </div>
     )
