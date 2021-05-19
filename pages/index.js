@@ -28,7 +28,20 @@ const Home = (props) => {
   )
 }
 
-export async function getStaticProps(context) {
+// export async function getStaticProps(context) {
+//   const res = await fetch(`${baseurl}api/product/getproducts`, {
+//     method:'GET',
+//     headers:{
+//       'requestType':'getProducts'
+//     }
+//   });
+//   const data = await res.json();
+//   return {
+//     props: {products:data}, // will be passed to the page component as props
+//   }
+// }
+
+export async function getServerSideProps(context) {
   const res = await fetch(`${baseurl}api/product/getproducts`, {
     method:'GET',
     headers:{
