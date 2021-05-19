@@ -3,12 +3,12 @@ import baseurl from '../helpers/baseUrls'
 
 const Home = (props) => {
   return (
-        <div className="row">
+        <div className="container row" style={{marginTop:'30px'}}>
           {
             props.products.map(product=>{
               return(
-                <div className="col s3" key={product._id}>
-                  <div className="card">
+                <div className="col l3 s12" key={product._id}>
+                  <div className="card product-card">
                     <div className="card-image">
                       <img src={product.mediaURI} className="pimage"/>
                       <span className="card-title">{product.name}</span>
@@ -28,7 +28,20 @@ const Home = (props) => {
   )
 }
 
-export async function getStaticProps(context) {
+// export async function getStaticProps(context) {
+//   const res = await fetch(`${baseurl}api/product/getproducts`, {
+//     method:'GET',
+//     headers:{
+//       'requestType':'getProducts'
+//     }
+//   });
+//   const data = await res.json();
+//   return {
+//     props: {products:data}, // will be passed to the page component as props
+//   }
+// }
+
+export async function getServerSideProps(context) {
   const res = await fetch(`${baseurl}api/product/getproducts`, {
     method:'GET',
     headers:{

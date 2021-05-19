@@ -1,6 +1,7 @@
 import initDB from '../../../helpers/initDB'
 import Product from '../../../models/Product'
 import Cart from '../../../models/Cart'
+import Order from '../../../models/Order'
 import useAuthorization from '../../../helpers/useAuthorization'
 
 initDB()
@@ -27,6 +28,9 @@ export default async (req, res)=>{
         break;
         case 'removeCartItem':
             removeCartItem(req,res)
+        break;
+        case 'getOrders':
+            getOrders(req,res)
         break;
 
     }
@@ -108,6 +112,13 @@ const removeCartItem = useAuthorization (async (req, res) => {
     )
     .populate("products.product")
 
-    console.log(cart)
     res.status(200).json(cart.products)
+})
+
+const getOrders = useAuthorization (async (req, res) => {
+
+    const orders = await Order.find({user:req.userId})
+    .populate("products.product")
+    
+    res.status(200).json(orders)
 })

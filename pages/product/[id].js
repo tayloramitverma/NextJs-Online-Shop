@@ -84,7 +84,7 @@ export default function Product({product}) {
     return (
         <div className="container center-align">
             <h3>{product.name}</h3>
-            <img src={product.mediaURI} className="pimage"/>
+            <img src={product.mediaURI} className="responsive-img pd-image"/>
             <h5>{product.price}</h5>
             <div className="row">
                 <div className="col s12">
@@ -111,9 +111,7 @@ export default function Product({product}) {
     )
 }
 
-
-export async function getStaticProps({params:{id}}) {
-    
+export async function getServerSideProps({params:{id}}) {
     const res = await fetch(`${baseurl}api/product/${id}`, {
         method: 'GET',
         headers: {
@@ -126,11 +124,24 @@ export async function getStaticProps({params:{id}}) {
     }
 }
 
-export async function getStaticPaths() {
-    return {
-      paths: [
-        { params: { id:"609cc24c0a0b3c24b5c54159" } } 
-      ],
-      fallback: true
-  }
-}
+// export async function getStaticProps({params:{id}}) {
+//     const res = await fetch(`${baseurl}api/product/${id}`, {
+//         method: 'GET',
+//         headers: {
+//             'requestType': 'getProduct'
+//         }
+//     })
+//     const data = await res.json();
+//     return {
+//       props: {product:data},
+//     }
+// }
+
+// export async function getStaticPaths() {
+//     return {
+//       paths: [
+//         { params: { id:"609cc24c0a0b3c24b5c54159" } } 
+//       ],
+//       fallback: true
+//   }
+// }

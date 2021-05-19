@@ -1,9 +1,9 @@
-import initDB from '../../helpers/initDB'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-
+import initDB from '../../helpers/initDB'
 import User from '../../models/User'
 import Cart from '../../models/Cart'
+import useAuthorization from '../../helpers/useAuthorization'
 
 initDB()
 
@@ -15,6 +15,14 @@ export default async (req, res)=>{
 
         case 'loginUser':
             loginUser(req,res)
+        break;
+
+        case 'getUsers':
+            getUsers(req,res)
+        break;
+
+        case 'updateRole':
+            updateRole(req,res)
         break;
     }
 }
@@ -78,3 +86,20 @@ const loginUser = async (req, res) => {
         console.log(err)
     }
 }
+
+const getUsers = useAuthorization (async (req, res) => {
+    const users = await User.find({_id:{$ne:req.userId}})
+    res.status(200).json(users)
+})
+
+const updateRole = useAuthorization(async (req, res)=> {
+    const {id,role} = req.body
+    const newRole  = role=="user"?"admin":"user"
+    const users  = await User.findOneAndUpdate(
+        {_id:id},
+        {role:newRole},
+        {new:true}
+    )
+    .select("-password")
+    res.status(200).json(users)
+})
