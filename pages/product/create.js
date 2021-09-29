@@ -1,4 +1,7 @@
 import {useState} from 'react'
+import {useRouter} from 'next/router'
+import baseurl from '../../helpers/baseUrls'
+import {parseCookies} from 'nookies'
 
 function Create() {
     const [name, setName] = useState('')
@@ -6,13 +9,52 @@ function Create() {
     const [description, setDescription] = useState('')
     const [media, setMedia] = useState('')
 
-    const createProduct = (e) =>{
+    const router = useRouter()
+
+    const createProduct = async (e) =>{
         e.preventDefault()
+
+        const data = new FormData();
+        data.append("file", media)
+        data.append("upload_preset", "instagram-clone")
+        data.append("cloud_name", "beingidea123")
+
+        const imageRes = await fetch("https://api.cloudinary.com/v1_1/beingidea123/image/upload", {
+            method:"post",
+            body:data
+        })
+
+        const imageData = await imageRes.json()
+        
+        const res = await fetch(`${baseurl}api/product/create`, {
+            method:'POST',
+            headers:{
+                "Content-Type":"application/json",
+                "requestType": "createProduct"
+            },
+            body:JSON.stringify({
+                name,
+                price,
+                mediaURI:imageData.url,
+                description
+            })
+        })
+
+        const resData = await res.json()
+
+        if(resData.err){
+            M.toast({html:resData.err,classes:'red'})
+        }else{
+            M.toast({html:resData.message,classes:'green'})
+            router.push('/')
+        }
+
         
     }
 
     return (
-        <div className="container">
+        <div className="container user-auth-card card center">
+            <h1>Create Product</h1>
             <form onSubmit={(e)=>createProduct(e)}>
                 <input 
                     type="text"
@@ -40,7 +82,8 @@ function Create() {
                     </div>
                 </div>
                 <img className="responsive-img" src={media?URL.createObjectURL(media):""}/>
-                <textarea 
+                <textarea
+                    name="description"
                     placeholder="Description" 
                     className="materialize-textarea"
                     value={description}
@@ -57,3 +100,20 @@ function Create() {
 }
 
 export default Create
+
+
+export async function getServerSideProps(context) {
+    const cookie = parseCookies(context)
+
+    const user = cookie.userdata ? JSON.parse(cookie.userdata) : ""
+
+    if(user.role !== 'admin'){
+        const {res} = context
+        res.writeHead(302,{Location:'/profile'})
+        res.end()
+    }
+
+    return{
+        props:{}
+    }
+}
